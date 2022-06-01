@@ -40,10 +40,10 @@ class I2CMultiplexer(object):
 
             gyro_x, gyro_y, gyro_z = self.mpu6050.getGyroscopeMeasurements()
             print("Gyro X: {:6.2f} rad/s, Y: {:6.2f} rad/s, Z: {:6.2f} rad/s".format(gyro_x, gyro_y, gyro_z))
-            print("Temperature: {:6.2f} C".format(self.mpu6050.getTemperature()))
+            print("Temperature: {:6.2f} °C".format(self.mpu6050.getTemperature()))
            
             angle_xz, angle_yz = self.mpu6050.getInclination()
-            print("Inclination: XZ angle: {:6.2f}deg   YZ angle: {:6.2f}deg".format(angle_xz, angle_yz))
+            print("Inclination: XZ angle: {:6.2f}°, YZ angle: {:6.2f}°".format(angle_xz, angle_yz))
             
             sleep(1)
             
