@@ -1,0 +1,5 @@
+opencv-python
+sshkeyboard
+adafruit-circuitpython-tca9548a
+adafruit-circuitpython-vl53l1x
+adafruit-circuitpython-mpu6050
