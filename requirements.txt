@@ -1,5 +1,11 @@
+pip 
+setuptools 
+wheel
 opencv-python
 sshkeyboard
+numpy
+RPi.GPIO
+picamera
 adafruit-circuitpython-tca9548a
 adafruit-circuitpython-vl53l1x
 adafruit-circuitpython-mpu6050
