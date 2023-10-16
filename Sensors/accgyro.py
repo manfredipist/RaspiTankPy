@@ -34,3 +34,10 @@ class AccelerometerGyroscope(object):
     def getInclination(self):
         x, y, z = self.mpu6050.acceleration
         return self.vector2degrees(x, z), self.vector2degrees(y, z)
+
+    def getYawPitchRoll(self):
+        x, y, z = self.mpu6050.acceleration
+        pitch = 180 * math.atan (x/math.sqrt(y*y + z*z))/math.pi;
+        roll = 180 * math.atan (y/math.sqrt(x*x + z*z))/math.pi;
+        yaw = 180 * math.atan (z/math.sqrt(x*x + z*z))/math.pi;
+        return yaw, pitch, roll

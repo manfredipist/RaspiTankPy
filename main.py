@@ -3,7 +3,6 @@ import logging
 import RPi.GPIO as GPIO    
 from sshkeyboard import listen_keyboard
 from time import sleep
-
 from Motor import motor
 from Sensors import i2c_multiplexer
 from Vision import camera
