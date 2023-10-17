@@ -45,10 +45,6 @@ class I2CMultiplexer(object):
             angle_xz, angle_yz = self.mpu6050.getInclination()
             print("Inclination: XZ angle: {:6.2f}°, YZ angle: {:6.2f}°".format(angle_xz, angle_yz))
             
-                       
-            yaw, pitch, roll = self.mpu6050.getYawPitchRoll()
-            print("Yaw: {:6.2f}°, Pitch: {:6.2f}°, Roll: {:6.2f}°".format(yaw, pitch, roll))
-            
             sleep(1)
             
 if __name__ == "__main__":

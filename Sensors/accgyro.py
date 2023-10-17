@@ -9,6 +9,8 @@ class AccelerometerGyroscope(object):
 
     def __init__(self, address):
         self.mpu6050 = adafruit_mpu6050.MPU6050(address)
+        self.mpu6050.accelerometer_range = adafruit_mpu6050.Range.RANGE_2_G
+        self.mpu6050.gyro_range = adafruit_mpu6050.GyroRange.RANGE_250_DPS
 
         print("MPU6050 COM check")
         print("--------------------")
