@@ -1,0 +1,10 @@
+opencv-python-headless>=4.5
+numpy
+pyzbar
+picamera[array]
+sshkeyboard
+adafruit-circuitpython-vl53l1x
+adafruit-circuitpython-mpu6050
+adafruit-circuitpython-tca9548a
+RPi.GPIO
+flask
