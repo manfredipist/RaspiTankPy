@@ -13,6 +13,7 @@ log = logging.getLogger('Motor')
 
 class Motor:
     def __init__(self):
+        global HAS_GPIO
         if HAS_GPIO:
             GPIO.setmode(GPIO.BCM)
             for p in motor_conf['left_pins'].values():

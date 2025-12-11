@@ -14,6 +14,7 @@ except Exception:
 class Laser:
     def __init__(self, i2c_or_bus=None, name='laser'):
         self.name = name
+        global HAS_VL53
         if HAS_VL53:
             # i2c_or_bus expected to be an I2C object (or multiplexer channel)
             self.vl = adafruit_vl53l1x.VL53L1X(i2c_or_bus)

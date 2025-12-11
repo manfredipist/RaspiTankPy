@@ -17,6 +17,8 @@ from raspi_tank.config import laser as laser_conf
 
 class I2CMultiplexer:
     def __init__(self):
+        # ensure assignments refer to module-level HAS_TCA
+        global HAS_TCA
         self._stopped = False
         self._last_update = time.time()
 

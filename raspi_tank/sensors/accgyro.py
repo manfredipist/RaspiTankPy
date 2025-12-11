@@ -12,6 +12,7 @@ except Exception:
 
 class AccelerometerGyroscope:
     def __init__(self, i2c_or_bus=None):
+        global HAS_MPU
         if HAS_MPU:
             self.mpu = adafruit_mpu6050.MPU6050(i2c_or_bus)
             self.mpu.accelerometer_range = adafruit_mpu6050.Range.RANGE_2_G
