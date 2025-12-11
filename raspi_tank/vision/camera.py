@@ -45,19 +45,32 @@ class CameraWorker:
 
     def start(self):
         log.info('CameraWorker started')
+        frame_count = 0
         if self._use_picamera:
+            log.info('Using Picamera2 for frame capture')
             while not self._stopped:
-                # Capture frame from picamera2
-                frame = self.camera.capture_array()
-                # Convert RGB to BGR for OpenCV compatibility
-                self.frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-                annotated, results = self.processor.analyze(self.frame, self.sensors)
-                with self._frame_lock:
-                    self.annotated_frame = annotated.copy()
-                if camera_conf.get('show_window', True):
-                    cv2.imshow('RaspiTank', annotated)
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        break
+                try:
+                    # Capture frame from picamera2
+                    frame = self.camera.capture_array()
+                    # Convert RGB to BGR for OpenCV compatibility
+                    self.frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                    annotated, results = self.processor.analyze(self.frame, self.sensors)
+                    with self._frame_lock:
+                        self.annotated_frame = annotated.copy()
+                    
+                    frame_count += 1
+                    if frame_count == 1:
+                        log.info('First camera frame captured successfully!')
+                    elif frame_count % 100 == 0:
+                        log.debug('Camera captured %d frames', frame_count)
+                    
+                    if camera_conf.get('show_window', False):
+                        cv2.imshow('RaspiTank', annotated)
+                        if cv2.waitKey(1) & 0xFF == ord('q'):
+                            break
+                except Exception as e:
+                    log.exception('Error capturing/processing frame: %s', e)
+                    time.sleep(0.1)
         else:
             while not self._stopped:
                 ret, frame = self.cap.read()

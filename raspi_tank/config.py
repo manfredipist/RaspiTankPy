@@ -3,7 +3,7 @@
 camera = {
     'resolution': (640, 480),
     'framerate': 30,
-    'show_window': True,  # uses cv2.imshow -> requires X11/XQuartz forwarding to mac
+    'show_window': False,  # uses cv2.imshow -> requires X11/XQuartz forwarding to mac, set False for headless
     'enable_mjpeg_stream': True,  # enable Flask MJPEG streaming on port 5000
     'stream_host': '0.0.0.0',
     'stream_port': 5000

@@ -63,7 +63,7 @@ class MJPEGStreamer:
             }
         }
         .video-container {
-            background: #2a2a3e;
+            background: #000000;
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.3);
@@ -72,6 +72,7 @@ class MJPEGStreamer:
             width: 100%;
             border-radius: 8px;
             display: block;
+            background: #000000;
         }
         .sidebar {
             display: flex;
@@ -513,22 +514,48 @@ class MJPEGStreamer:
     def _generate_frames(self):
         """Generator that yields MJPEG frames."""
         import time
+        log.info('Frame generator started')
+        frame_count = 0
+        null_count = 0
+        
         while not self._stopped:
-            frame = self.camera_worker.get_latest_annotated_frame()
-            if frame is None:
-                time.sleep(0.05)  # Wait for camera to produce frames
-                continue
-            
-            # Encode frame as JPEG
-            ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
-            if not ret:
-                time.sleep(0.05)
-                continue
-            
-            frame_bytes = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-            time.sleep(0.033)  # ~30 fps
+            try:
+                frame = self.camera_worker.get_latest_annotated_frame()
+                if frame is None:
+                    null_count += 1
+                    if null_count % 20 == 1:  # Log every 20 null frames
+                        log.warning('Camera frame is None (count: %d)', null_count)
+                    time.sleep(0.05)  # Wait for camera to produce frames
+                    continue
+                
+                # Reset null count when we get a frame
+                if null_count > 0:
+                    log.info('Camera resumed after %d null frames', null_count)
+                    null_count = 0
+                
+                # Encode frame as JPEG
+                ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+                if not ret:
+                    log.error('Failed to encode frame as JPEG')
+                    time.sleep(0.05)
+                    continue
+                
+                frame_bytes = buffer.tobytes()
+                frame_count += 1
+                
+                if frame_count == 1:
+                    log.info('First frame generated successfully!')
+                elif frame_count % 100 == 0:
+                    log.debug('Generated %d frames', frame_count)
+                
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+                time.sleep(0.033)  # ~30 fps
+            except Exception as e:
+                log.exception('Error in frame generator: %s', e)
+                time.sleep(0.1)
+        
+        log.info('Frame generator stopped (generated %d frames total)', frame_count)
 
     def start(self):
         """Start Flask server in a separate thread."""
@@ -538,7 +565,11 @@ class MJPEGStreamer:
         return thread
 
     def _run_flask(self):
-        self.app.run(host=self.host, port=self.port, debug=False, threaded=True, use_reloader=False)
+        try:
+            log.info('Flask server starting on %s:%d', self.host, self.port)
+            self.app.run(host=self.host, port=self.port, debug=False, threaded=True, use_reloader=False)
+        except Exception as e:
+            log.exception('Flask server error: %s', e)
 
     def stop(self):
         self._stopped = True

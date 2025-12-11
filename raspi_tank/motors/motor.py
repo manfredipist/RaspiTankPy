@@ -47,17 +47,7 @@ class Motor:
     def move_left(self):
         log.info('move_left')
         if HAS_GPIO:
-            GPIO.output(motor_conf['left_pins']['en'], GPIO.HIGH)
-            GPIO.output(motor_conf['left_pins']['in_1'], GPIO.LOW)
-            GPIO.output(motor_conf['left_pins']['in_2'], GPIO.HIGH)
-
-            GPIO.output(motor_conf['right_pins']['en'], GPIO.HIGH)
-            GPIO.output(motor_conf['right_pins']['in_1'], GPIO.HIGH)
-            GPIO.output(motor_conf['right_pins']['in_2'], GPIO.LOW)
-
-    def move_right(self):
-        log.info('move_right')
-        if HAS_GPIO:
+            # Left motor backward, right motor forward = turn left
             GPIO.output(motor_conf['left_pins']['en'], GPIO.HIGH)
             GPIO.output(motor_conf['left_pins']['in_1'], GPIO.HIGH)
             GPIO.output(motor_conf['left_pins']['in_2'], GPIO.LOW)
@@ -65,6 +55,18 @@ class Motor:
             GPIO.output(motor_conf['right_pins']['en'], GPIO.HIGH)
             GPIO.output(motor_conf['right_pins']['in_1'], GPIO.LOW)
             GPIO.output(motor_conf['right_pins']['in_2'], GPIO.HIGH)
+
+    def move_right(self):
+        log.info('move_right')
+        if HAS_GPIO:
+            # Left motor forward, right motor backward = turn right
+            GPIO.output(motor_conf['left_pins']['en'], GPIO.HIGH)
+            GPIO.output(motor_conf['left_pins']['in_1'], GPIO.LOW)
+            GPIO.output(motor_conf['left_pins']['in_2'], GPIO.HIGH)
+
+            GPIO.output(motor_conf['right_pins']['en'], GPIO.HIGH)
+            GPIO.output(motor_conf['right_pins']['in_1'], GPIO.HIGH)
+            GPIO.output(motor_conf['right_pins']['in_2'], GPIO.LOW)
 
     def stop(self):
         log.info('stop')
