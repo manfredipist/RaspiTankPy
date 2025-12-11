@@ -46,5 +46,6 @@ class Laser:
         if HAS_VL53 and self.vl is not None:
             try:
                 self.vl.stop_ranging()
-            except Exception:
-                pass
+                log.info('%s: VL53L1X stopped', self.name)
+            except Exception as e:
+                log.warning('%s: Error stopping VL53L1X: %s', self.name, e)

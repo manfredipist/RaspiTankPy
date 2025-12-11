@@ -80,5 +80,8 @@ class I2CMultiplexer:
                 self.left.stop()
             if self.right:
                 self.right.stop()
-        except Exception:
-            pass
+            if self.mpu:
+                self.mpu.stop()
+            log.info('I2C multiplexer stopped')
+        except Exception as e:
+            log.warning('Error during I2C cleanup: %s', e)

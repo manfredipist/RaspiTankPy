@@ -512,19 +512,23 @@ class MJPEGStreamer:
 
     def _generate_frames(self):
         """Generator that yields MJPEG frames."""
+        import time
         while not self._stopped:
             frame = self.camera_worker.get_latest_annotated_frame()
             if frame is None:
+                time.sleep(0.05)  # Wait for camera to produce frames
                 continue
             
             # Encode frame as JPEG
             ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
             if not ret:
+                time.sleep(0.05)
                 continue
             
             frame_bytes = buffer.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+            time.sleep(0.033)  # ~30 fps
 
     def start(self):
         """Start Flask server in a separate thread."""
