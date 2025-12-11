@@ -20,18 +20,21 @@ class CameraWorker:
         self.annotated_frame = None
         self._frame_lock = threading.Lock()
 
-        # try picamera first, fallback to cv2.VideoCapture
+        # try picamera2 first, fallback to cv2.VideoCapture
         try:
-            from picamera.array import PiRGBArray
-            from picamera import PiCamera
+            from picamera2 import Picamera2
             self._use_picamera = True
-            self.camera = PiCamera()
-            self.camera.resolution = camera_conf['resolution']
-            self.camera.framerate = camera_conf['framerate']
-            self.rawCapture = PiRGBArray(self.camera, size=camera_conf['resolution'])
-            self.stream = self.camera.capture_continuous(self.rawCapture, format='bgr', use_video_port=True)
-            log.info('Using PiCamera')
-        except Exception:
+            self.camera = Picamera2()
+            
+            # Configure camera for video mode
+            config = self.camera.create_video_configuration(
+                main={"size": camera_conf['resolution'], "format": "RGB888"}
+            )
+            self.camera.configure(config)
+            self.camera.start()
+            log.info('Using Picamera2')
+        except Exception as e:
+            log.warning(f'Picamera2 not available: {e}')
             self._use_picamera = False
             self.cap = cv2.VideoCapture(0)
             if camera_conf['resolution']:
@@ -43,8 +46,11 @@ class CameraWorker:
     def start(self):
         log.info('CameraWorker started')
         if self._use_picamera:
-            for f in self.stream:
-                self.frame = f.array
+            while not self._stopped:
+                # Capture frame from picamera2
+                frame = self.camera.capture_array()
+                # Convert RGB to BGR for OpenCV compatibility
+                self.frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
                 annotated, results = self.processor.analyze(self.frame, self.sensors)
                 with self._frame_lock:
                     self.annotated_frame = annotated.copy()
@@ -52,9 +58,6 @@ class CameraWorker:
                     cv2.imshow('RaspiTank', annotated)
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
-                self.rawCapture.truncate(0)
-                if self._stopped:
-                    break
         else:
             while not self._stopped:
                 ret, frame = self.cap.read()
@@ -74,8 +77,7 @@ class CameraWorker:
         # cleanup
         try:
             if self._use_picamera:
-                self.stream.close()
-                self.rawCapture.close()
+                self.camera.stop()
                 self.camera.close()
             else:
                 self.cap.release()
